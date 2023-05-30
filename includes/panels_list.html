@@ -1,0 +1,11 @@
+<div id="wp_panels_list"></div>
+<script>
+    $.ajax({
+  url: "http://localhost:8888/websites/gc/wp-content/plugins/wp-ct-product-prices-configurator/includes/panels_list.php"
+}).fail(function(e) {
+  console.log(e);
+/* .done(function(e) {
+  $( '#wp_panels_list').html(e); */
+});
+
+</script>

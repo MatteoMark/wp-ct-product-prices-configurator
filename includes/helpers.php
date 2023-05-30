@@ -12,7 +12,7 @@ function ct_admin_current_view()
         return 'view0';
     }
 
-    return str_replace("ct-admin-forms_", "", $current_step);
+    return str_replace("panels-configurator_", "", $current_step);
 
 }
 
@@ -20,7 +20,7 @@ function ct_admin_template_server_path($file_path, $include = true, $options = a
 {
     $my_plugin_dir = WP_PLUGIN_DIR . "/" . CT_WP_ADMIN_DIR . "/";
 
-    if ( is_dir( $my_plugin_dir ) ) {
+    if (is_dir($my_plugin_dir)) {
         $path_to_file = $my_plugin_dir . $file_path . '.php';
     }
 
@@ -62,13 +62,14 @@ function ct_admin_url($append = '')
 function ct_admin_view_pagename($step)
 {
     $view_url_part = '';
-    if($step){
+    if ($step) {
         $view_url_part = '_' . $step;
     }
 
-    return admin_url('admin.php?page=ct-admin-forms' . $view_url_part);
+    return admin_url('admin.php?page=panels-configurator' . $view_url_part);
 }
-function ct_admin_submit($submit_text, $hide_class = "sr-only"){ ?>
+function ct_admin_submit($submit_text, $hide_class = "sr-only")
+{ ?>
     <div class="form__submit <?php echo $hide_class ?>">
         <p class="submit">
             <input type="submit" name="submit5" id="submit5" class="button" value="<?php echo $submit_text; ?>">
@@ -82,6 +83,7 @@ function ct_admin_submit($submit_text, $hide_class = "sr-only"){ ?>
  * @return void
  * warning, info, success
  */
-function ct_admin_message($message, $msg_type = 'info') {
+function ct_admin_message($message, $msg_type = 'info')
+{
     return "<div id='message' class='alert alert-$msg_type'>$message</div>";
 }

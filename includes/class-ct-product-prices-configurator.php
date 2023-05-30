@@ -3,7 +3,7 @@
 class Ct_Admin_Form
 {
 
-    const ID = 'ct-admin-forms';
+    const ID = 'panels-configurator';
 
     const NONCE_KEY = 'ct_admin';
 
@@ -15,7 +15,7 @@ class Ct_Admin_Form
         'not-found' => 'views/not-found'
     );
     const WHITELISTED_KEYS = array(
-        'ct-admin-cookie',
+        'panels-admin-datas',
         'ct-admin-forgotten'
     );
 
@@ -51,6 +51,7 @@ class Ct_Admin_Form
     {
         $defaults = array();
         foreach ($this->get_whitelisted_keys() as $key => $val) {
+            echo "<script>console.log('$val')</script>";
             $defaults[$val] = get_option($val);
         }
         return $defaults;
@@ -61,15 +62,15 @@ class Ct_Admin_Form
     {
 
         add_menu_page(
-            esc_html__('My menu section', 'ct-admin'),
-            esc_html__('My menu section', 'ct-admin'),
+            esc_html__('Pannelli', 'ct-admin'),
+            esc_html__('Pannelli', 'ct-admin'),
             'manage_options',
             $this->get_id(),
             array(&$this, 'load_view'),
             'dashicons-admin-page'
         );
 
-        add_submenu_page(
+        /* add_submenu_page(
             $this->get_id(),
             esc_html__('Submenu', 'ct-admin'),
             esc_html__('Submenu', 'ct-admin'),
@@ -86,7 +87,7 @@ class Ct_Admin_Form
             'manage_options',
             $this->get_id() . '_view2',
             array(&$this, 'load_view')
-        );
+        ); */
 
 
     }
@@ -96,7 +97,7 @@ class Ct_Admin_Form
     {
         $this->default_values = $this->get_defaults();
         $this->current_page = ct_admin_current_view();
-        
+
         $current_views = isset($this->views[$this->current_page]) ? $this->views[$this->current_page] : $this->views['not-found'];
 
         $step_data_func_name = $this->current_page . '_data';
@@ -112,7 +113,7 @@ class Ct_Admin_Form
          * Default Admin Form Template
          */
 
-        echo '<div class="ct-admin-forms ' . $this->current_page . '">';
+        echo '<div class="panels-configurator ' . $this->current_page . '">';
 
         echo '<div class="container container1">';
         echo '<div class="inner">';
@@ -124,7 +125,7 @@ class Ct_Admin_Form
         echo '</div>';
         echo '</div>';
 
-        echo '</div> <!-- / ct-admin-forms -->';
+        echo '</div> <!-- / panels-configurator -->';
     }
 
 
@@ -160,7 +161,9 @@ class Ct_Admin_Form
 
         wp_enqueue_style('ct-admin-form-bs', 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css', CT_WP_ADMIN_VERSION);
 
-        wp_enqueue_script('ct-admin-form-bs', 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js',
+        wp_enqueue_script(
+            'ct-admin-form-bs',
+            'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js',
             array('jquery'),
             CT_WP_ADMIN_VERSION,
             true
@@ -169,7 +172,9 @@ class Ct_Admin_Form
 
         wp_enqueue_style('ct-admin-form', ct_admin_url('assets/style.css'), CT_WP_ADMIN_VERSION);
 
-        wp_enqueue_script('ct-admin-form-js', ct_admin_url('assets/custom.js'),
+        wp_enqueue_script(
+            'ct-admin-form-js',
+            ct_admin_url('assets/custom.js'),
             array('jquery'),
             CT_WP_ADMIN_VERSION,
             true
@@ -226,7 +231,7 @@ class Ct_Admin_Form
             $db_opts = get_option($key);
             $db_opts = ($db_opts === '') ? array() : $db_opts;
 
-            if(!$db_opts){
+            if (!$db_opts) {
                 $db_opts = array();
             }
 
@@ -249,6 +254,14 @@ class Ct_Admin_Form
         $requiredAttr = ($required) ? "required" : '';
 
         return '<input type="text" id="' . $key . '" name="' . $group . '[' . $key . ']" class="form-control" value="' . $inputValue . '" ' . $requiredAttr . '>';
+    }
+
+    private function render_numbers_input($group, $key, $required = false)
+    {
+        $inputValue = isset($this->default_values[$group][$key]) ? stripslashes($this->default_values[$group][$key]) : '';
+        $requiredAttr = ($required) ? "required" : '';
+
+        return '<input type="number" id="' . $key . '" name="' . $group . '[' . $key . ']" class="form-control" value="' . $inputValue . '" ' . $requiredAttr . ' step=".01" min="0">';
     }
 
     private function render_textarea($group, $key)
@@ -322,11 +335,16 @@ class Ct_Admin_Form
             'bg' => 'Bulgarian',
             'sv' => 'Swedish'
         );
-        $args['cookie_content_language'] = $this->render_select('ct-admin-cookie', 'cookie_content_language', $values);
-        $args['cookie_content'] = $this->render_textarea('ct-admin-cookie', 'cookie_content');
-        $args['cookie_popup_label_accept'] = $this->render_input('ct-admin-cookie', 'cookie_popup_label_accept');
-
+        $args['panels_kw_list_language'] = $this->render_select('panels-admin-datas', 'panels_kw_list_language', $values);
+        $args['panels_kw_list'] = $this->render_textarea('panels-admin-datas', 'panels_kw_list');
+        $args['panels_page_title'] = $this->render_input('panels-admin-datas', 'panels_page_title');
+        $args['panels_pattern_articles_titles'] = $this->render_input('panels-admin-datas', 'panels_pattern_articles_titles');
+        $args['panels_pattern_articles_details'] = $this->render_textarea('panels-admin-datas', 'panels_pattern_articles_details');
         $args['forgotten_automated_forget'] = $this->render_checkbox('ct-admin-forgotten', 'forgotten_automated_forget');
+        $args['min_price_for_each_panel'] = $this->render_numbers_input('panels-admin-datas', 'min_price_for_each_panel');
+        $args['max_price_for_each_panel'] = $this->render_numbers_input('panels-admin-datas', 'max_price_for_each_panel');
+        $args['price_for_each_converter'] = $this->render_numbers_input('panels-admin-datas', 'price_for_each_converter');
+        $args['k_for_each_panel'] = $this->render_numbers_input('panels-admin-datas', 'k_for_each_panel');
 
 
         return $args;
@@ -336,8 +354,8 @@ class Ct_Admin_Form
     {
 
         $services_args = array(
-            'post_type'        => 'any',
-            'numberposts'      => - 1,
+            'post_type' => 'any',
+            'numberposts' => -1,
             'suppress_filters' => false,
         );
 
@@ -350,12 +368,12 @@ class Ct_Admin_Form
 
         // add options
         $values = array(
-            'manual'                     => __( 'Never', 'ct-admin' ),
-            'ct-admin-weekly'    => __( 'Weekly', 'ct-admin' ),
-            'ct-admin-monthly'   => __( 'Monthly', 'ct-admin' ),
-            'ct-admin-quarterly' => __( 'Quarterly', 'ct-admin' )
+            'manual' => __('Never', 'ct-admin'),
+            'ct-admin-weekly' => __('Weekly', 'ct-admin'),
+            'ct-admin-monthly' => __('Monthly', 'ct-admin'),
+            'ct-admin-quarterly' => __('Quarterly', 'ct-admin')
         );
-        $args['cookie_scan_period'] = $this->render_select('ct-admin-cookie', 'cookie_scan_period', $values);
+        $args['cookie_scan_period'] = $this->render_select('panels-admin-datas', 'cookie_scan_period', $values);
 
 
         return $args;
@@ -388,9 +406,9 @@ class Ct_Admin_Form
             'bg' => 'Bulgarian',
             'sv' => 'Swedish'
         );
-        $args['cookie_content_language2'] = $this->render_select('ct-admin-cookie', 'cookie_content_language2', $values);
-        $args['cookie_content2'] = $this->render_textarea('ct-admin-cookie', 'cookie_content2');
-        $args['cookie_popup_label_accept2'] = $this->render_input('ct-admin-cookie', 'cookie_popup_label_accept2');
+        $args['panels_kw_list_language2'] = $this->render_select('panels-admin-datas', 'panels_kw_list_language2', $values);
+        $args['panels_kw_list2'] = $this->render_textarea('panels-admin-datas', 'panels_kw_list2');
+        $args['panels_page_title2'] = $this->render_input('panels-admin-datas', 'panels_page_title2');
 
         $args['forgotten_automated_forget2'] = $this->render_checkbox('ct-admin-forgotten', 'forgotten_automated_forget2');
 
@@ -399,3 +417,6 @@ class Ct_Admin_Form
     }
 
 }
+
+if (isset($_POST['title']))
+    panels_create_page();
